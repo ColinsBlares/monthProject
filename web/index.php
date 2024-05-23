@@ -5,7 +5,7 @@ if ($conn->connect_error) {
 }
 
 $current_date = date('Y-m-d');
-$sql = "SELECT * FROM announcements WHERE start_date <= '$current_date' AND end_date >= '$current_date' ORDER BY created_at DESC";
+$sql = "SELECT * FROM announcements WHERE start_date <= '$current_date' AND end_date >= '$current_date' ORDER BY FIELD(importance, 'high', 'medium', 'low')";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -15,62 +15,52 @@ $result = $conn->query($sql);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Добро пожаловать</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .card {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .btn-custom {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        .announcements {
-            margin-top: 20px;
-        }
-    </style>
+    <link href="/styles/style.css" rel="stylesheet"> <!-- Подключение внешнего файла стилей -->
 </head>
-<body>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card text-center">
-                <div class="card-header">
-                    <h3>Добро пожаловать</h3>
-                </div>
-                <div class="card-body">
-                    <a href="login.php" class="btn btn-primary btn-custom">Войти</a>
-                    <a href="admin_login.php" class="btn btn-secondary btn-custom">Войти как админ</a>
-                </div>
+<body class="light"> <!-- По умолчанию используется светлая тема -->
+<div class="container mt-5">
+    <div class="card text-center shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Добро пожаловать</h3>
+        </div>
+        <div class="card-body">
+            <p class="lead mb-4">Выберите действие:</p>
+            <div class="d-flex justify-content-center mb-3">
+                <a href="login.php" class="btn btn-primary btn-lg mr-3">Войти</a>
+                <a href="admin_login.php" class="btn btn-secondary btn-lg">Войти как админ</a>
             </div>
         </div>
     </div>
-    <div class="row announcements justify-content-center">
-        <div class="col-md-6">
-            <h2>Текущие объявления</h2>
+
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h2 class="text-center mb-4">Текущие объявления</h2>
+            <div class="theme-toggle">
+                <label for="theme-toggle-checkbox">Тема:</label>
+                <input type="checkbox" id="theme-toggle-checkbox">
+            </div>
             <?php
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    echo "<div class='alert alert-info'>";
-                    echo "<h4>" . htmlspecialchars($row['title']) . "</h4>";
-                    echo "<p>" . htmlspecialchars($row['content']) . "</p>";
-                    echo "<small>Действительно с " . htmlspecialchars($row['start_date']) . " по " . htmlspecialchars($row['end_date']) . "</small>";
-                    echo "</div>";
+                    $importance_class = strtolower($row['importance']) . '-importance';
+            ?>
+                    <div class="card mb-3 announcement <?php echo $importance_class; ?>">
+                        <div class="card-body">
+                            <h5 class="card-title"><?php echo htmlspecialchars($row['title']); ?></h5>
+                            <p class="card-text"><?php echo htmlspecialchars($row['content']); ?></p>
+                            <p class="card-text"><small class="text-muted">Действительно с <?php echo htmlspecialchars($row['start_date']); ?> по <?php echo htmlspecialchars($row['end_date']); ?></small></p>
+                        </div>
+                    </div>
+            <?php
                 }
             } else {
-                echo "<p>Нет текущих объявлений.</p>";
+                echo "<p class='text-center mt-4'>Нет текущих объявлений.</p>";
             }
             ?>
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="scripts/script.js"></script> <!-- Подключение внешнего файла JavaScript -->
 </body>
 </html>
