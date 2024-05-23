@@ -24,3 +24,16 @@
      CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `residents` (`id`)
    ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb3;
    ```
+2. Таблица для объявлений ```announcements```
+   ```sql
+      CREATE TABLE `announcements` (
+     `id` int NOT NULL AUTO_INCREMENT,
+     `title` varchar(255) NOT NULL,
+     `content` text NOT NULL,
+     `start_date` date NOT NULL,
+     `end_date` date NOT NULL,
+     `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+     `importance` enum('low','medium','high') NOT NULL DEFAULT 'low',
+     PRIMARY KEY (`id`)
+   ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+   ```
