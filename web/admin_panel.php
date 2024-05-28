@@ -112,8 +112,8 @@ $users_result = $conn->query($users_sql);
 </head>
 <body>
 <div class="sidebar">
-    <h2>Admin Panel</h2>
-    <a href='?logout' class='btn btn-danger mb-3'>Log Out</a>
+    <h2>Админ панель</h2>
+    <a href='?logout' class='btn btn-danger mb-3'>Выйти</a>
     <ul class="nav flex-column">
         <li class="nav-item">
             <a class="nav-link active" href="#messages" data-bs-toggle="tab">Сообщения</a>
@@ -138,6 +138,7 @@ $users_result = $conn->query($users_sql);
                     <label for="receiver_id" class="form-label">Выбор пользователя</label>
                     <select class="form-select" id="receiver_id" name="receiver_id">
                         <?php
+                        $users_result = $conn->query($users_sql); // Повторное выполнение запроса для формы
                         while ($user = $users_result->fetch_assoc()) {
                             echo "<option value='{$user['id']}'>{$user['full_name']}</option>";
                         }
@@ -222,6 +223,8 @@ $users_result = $conn->query($users_sql);
 
             <h2>Пользователи</h2>
             <?php
+            $users_sql = "SELECT id, full_name, phone_number FROM residents ORDER BY full_name ASC";
+            $users_result = $conn->query($users_sql);
             if ($users_result->num_rows > 0) {
                 echo "<ul class='list-group'>";
                 while ($row = $users_result->fetch_assoc()) {
@@ -238,7 +241,11 @@ $users_result = $conn->query($users_sql);
         </div>
     </div>
 </div>
-
+<script>
+    document.getElementById('sidebar-toggler').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('active');
+    });
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
