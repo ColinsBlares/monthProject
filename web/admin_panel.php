@@ -66,6 +66,20 @@ $result = $conn->query($sql);
 // Получение всех объявлений
 $announcements_sql = "SELECT * FROM announcements ORDER BY created_at DESC";
 $announcements_result = $conn->query($announcements_sql);
+
+// Получение количества пользователей
+$user_count_sql = "SELECT COUNT(*) as user_count FROM residents";
+$user_count_result = $conn->query($user_count_sql);
+$user_count = $user_count_result->fetch_assoc()['user_count'];
+
+// Получение количества сообщений
+$message_count_sql = "SELECT COUNT(*) as message_count FROM messages";
+$message_count_result = $conn->query($message_count_sql);
+$message_count = $message_count_result->fetch_assoc()['message_count'];
+
+// Получение всех пользователей
+$users_sql = "SELECT id, full_name, phone_number FROM residents ORDER BY full_name ASC";
+$users_result = $conn->query($users_sql);
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -74,93 +88,157 @@ $announcements_result = $conn->query($announcements_sql);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .message-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            background-color: #f8f9fa;
+            padding: 15px;
+        }
+        .content {
+            margin-left: 270px;
+            padding: 15px;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h1>Admin Panel</h1>
+<div class="sidebar">
+    <h2>Admin Panel</h2>
     <a href='?logout' class='btn btn-danger mb-3'>Log Out</a>
-
-    <form method="post" class="mb-4">
-        <div class="mb-3">
-            <label for="receiver_id" class="form-label">Выбор пользователя</label>
-            <select class="form-select" id="receiver_id" name="receiver_id">
-                <?php
-                $users = $conn->query("SELECT id, full_name FROM residents ORDER BY full_name ASC");
-                while ($user = $users->fetch_assoc()) {
-                    echo "<option value='{$user['id']}'>{$user['full_name']}</option>";
-                }
-                ?>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="message" class="form-label">Сообщение</label>
-            <textarea class="form-control" id="message" name="message" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Ответить</button>
-    </form>
-
-    <h2>Добавить объявление</h2>
-    <form method="post" class="mb-4">
-        <div class="mb-3">
-            <label for="title" class="form-label">Заголовок</label>
-            <input type="text" class="form-control" id="title" name="title" required>
-        </div>
-        <div class="mb-3">
-            <label for="content" class="form-label">Содержание</label>
-            <textarea class="form-control" id="content" name="content" required></textarea>
-        </div>
-        <div class="mb-3">
-            <label for="start_date" class="form-label">Дата начала</label>
-            <input type="date" class="form-control" id="start_date" name="start_date" required>
-        </div>
-        <div class="mb-3">
-            <label for="end_date" class="form-label">Дата окончания</label>
-            <input type="date" class="form-control" id="end_date" name="end_date" required>
-        </div>
-        <div class="mb-3">
-            <label for="importance" class="form-label">Важность</label>
-            <select class="form-select" id="importance" name="importance">
-                <option value="low">Низкая</option>
-                <option value="medium">Средняя</option>
-                <option value="high">Высокая</option>
-            </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Добавить объявление</button>
-    </form>
-
-    <h2>Объявления</h2>
-    <?php
-    if ($announcements_result->num_rows > 0) {
-        while ($row = $announcements_result->fetch_assoc()) {
-            echo "<div class='alert alert-info'>";
-            echo "<h4>" . htmlspecialchars($row['title']) . "</h4>";
-            echo "<p>" . htmlspecialchars($row['content']) . "</p>";
-            echo "<small>Valid from " . htmlspecialchars($row['start_date']) . " to " . htmlspecialchars($row['end_date']) . "</small>";
-            echo "<form method='get' class='mt-2'>";
-            echo "<input type='hidden' name='delete_announcement' value='{$row['id']}'>";
-            echo "<button type='submit' class='btn btn-danger btn-sm'>Удалить</button>";
-            echo "</form>";
-            echo "</div>";
-        }
-    } else {
-        echo "<p>No announcements yet.</p>";
-    }
-    ?>
-
-    <h2>Сообщения</h2>
-    <?php
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $card_class = $row['sender_id'] == 1 ? 'alert alert-success' : 'alert alert-secondary';
-            echo "<div class='$card_class'>";
-            echo "<h4>{$row['full_name']} (ID: {$row['resident_id']}, Телефон: {$row['phone_number']})</h4>";
-            echo "<p> Текст: " . htmlspecialchars($row['message']) . "</p>";
-            echo "</div>";
-        }
-    } else {
-        echo "<p>Пока тут тихо. Даже слишком</p>";
-    }
-    ?>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link active" href="#messages" data-bs-toggle="tab">Сообщения</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#announcements" data-bs-toggle="tab">Объявления</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#create_announcement" data-bs-toggle="tab">Создать Объявление</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#users" data-bs-toggle="tab">Пользователи</a>
+        </li>
+    </ul>
 </div>
+<div class="content">
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="messages">
+            <h3>Сообщения</h3>
+            <form method="post" class="mb-4">
+                <div class="mb-3">
+                    <label for="receiver_id" class="form-label">Выбор пользователя</label>
+                    <select class="form-select" id="receiver_id" name="receiver_id">
+                        <?php
+                        while ($user = $users_result->fetch_assoc()) {
+                            echo "<option value='{$user['id']}'>{$user['full_name']}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="message" class="form-label">Сообщение</label>
+                    <textarea class="form-control" id="message" name="message" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Ответить</button>
+            </form>
+
+            <?php
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $card_class = $row['sender_id'] == 1 ? 'alert alert-success message-container' : 'alert alert-secondary message-container';
+                    echo "<div class='$card_class'>";
+                    echo "<h4>{$row['full_name']} (ID: {$row['resident_id']}, Телефон: {$row['phone_number']})</h4>";
+                    echo "<p> Текст: " . htmlspecialchars($row['message']) . "</p>";
+                    echo "</div>";
+                }
+            } else {
+                echo "<p>Пока тут тихо. Даже слишком</p>";
+            }
+            ?>
+        </div>
+        <div class="tab-pane fade" id="announcements">
+            <h3>Объявления</h3>
+            <?php
+            if ($announcements_result->num_rows > 0) {
+                while ($row = $announcements_result->fetch_assoc()) {
+                    echo "<div class='alert alert-info'>";
+                    echo "<h4>" . htmlspecialchars($row['title']) . "</h4>";
+                    echo "<p>" . htmlspecialchars($row['content']) . "</p>";
+                    echo "<small>Valid from " . htmlspecialchars($row['start_date']) . " to " . htmlspecialchars($row['end_date']) . "</small>";
+                    echo "<form method='get' class='mt-2'>";
+                    echo "<input type='hidden' name='delete_announcement' value='{$row['id']}'>";
+                    echo "<button type='submit' class='btn btn-danger btn-sm'>Удалить</button>";
+                    echo "</form>";
+                    echo "</div>";
+                }
+            } else {
+                echo "<p>No announcements yet.</p>";
+            }
+            ?>
+        </div>
+        <div class="tab-pane fade" id="create_announcement">
+            <h3>Создать Объявление</h3>
+            <form method="post" class="mb-4">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Заголовок</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="mb-3">
+                    <label for="content" class="form-label">Содержание</label>
+                    <textarea class="form-control" id="content" name="content" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="start_date" class="form-label">Дата начала</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required>
+                </div>
+                <div class="mb-3">
+                    <label for="end_date" class="form-label">Дата окончания</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" required>
+                </div>
+                <div class="mb-3">
+                    <label for="importance" class="form-label">Важность</label>
+                    <select class="form-select" id="importance" name="importance" required>
+                        <option value="low">Низкая</option>
+                        <option value="medium">Средняя</option>
+                        <option value="high">Высокая</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Создать</button>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="users">
+            <h3>Информация о базе данных</h3>
+            <p>Количество пользователей: <?php echo $user_count; ?></p>
+            <p>Количество сообщений: <?php echo $message_count; ?></p>
+
+            <h2>Пользователи</h2>
+            <?php
+            if ($users_result->num_rows > 0) {
+                echo "<ul class='list-group'>";
+                while ($row = $users_result->fetch_assoc()) {
+                    echo "<li class='list-group-item'>";
+                    echo "<strong>ФИО:</strong> " . htmlspecialchars($row['full_name']) . "<br>";
+                    echo "<strong>Телефон:</strong> " . htmlspecialchars($row['phone_number']);
+                    echo "</li>";
+                }
+                echo "</ul>";
+            } else {
+                echo "<p>Нет пользователей.</p>";
+            }
+            ?>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
