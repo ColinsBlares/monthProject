@@ -22,6 +22,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: white;
+            color: black;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        .card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            color: black;
+            transition: background-color 0.5s, color 0.5s, border-color 0.5s;
+        }
+
+        body.dark {
+            background-color: #333;
+            color: white;
+        }
+        .card.dark {
+            background-color: #333;
+            border: 1px solid #555;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
@@ -49,11 +72,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <button type="submit" class="btn btn-primary">Login</button>
                         <a href="index.php" class="btn btn-secondary">Назад</a>
                     </form>
+                    <button id="toggleThemeButton" class="btn btn-secondary mt-3">Toggle Theme</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script src="/scripts/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -42,3 +42,44 @@ document.addEventListener("DOMContentLoaded", function() {
         return null;
     }
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const bodyElement = document.body;
+    const cardElement = document.querySelector('.card');
+    const toggleThemeButton = document.getElementById('toggleThemeButton');
+
+    // Функция для установки куки
+    function setCookie(name, value, days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        const expires = "expires=" + date.toUTCString();
+        document.cookie = name + "=" + value + ";" + expires + ";path=/";
+    }
+
+    // Функция для получения значения куки
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+
+    // Проверка куки и установка начальной темы
+    const currentTheme = getCookie('theme') || 'light';
+    if (currentTheme === 'dark') {
+        bodyElement.classList.add('dark');
+        cardElement.classList.add('dark');
+    }
+
+    // Обработчик переключения темы
+    toggleThemeButton.addEventListener('click', function () {
+        const isDark = bodyElement.classList.toggle('dark');
+        cardElement.classList.toggle('dark', isDark);
+        const newTheme = isDark ? 'dark' : 'light';
+        setCookie('theme', newTheme, 365);
+    });
+});

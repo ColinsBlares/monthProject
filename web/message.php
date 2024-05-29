@@ -1,6 +1,6 @@
 <?php
 session_start();
-// Проверка аутентификации пользователя
+
 if (!isset($_SESSION['user_logged_in']) || $_SESSION['user_logged_in'] !== true) {
     header("Location: login.php");
     exit();
@@ -40,6 +40,16 @@ $result = $conn->query($sql);
     <title>Сообщения</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.1/emojionearea.min.css" />
+    <style>
+        .message-container {
+            max-height: 500px; 
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .alert {
+            margin-bottom: 10px; 
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
@@ -53,20 +63,22 @@ $result = $conn->query($sql);
         <button type="submit" class="btn btn-primary">Отправить сообщение</button>
     </form>
 
-    <?php
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $class = $row['sender_id'] == 9 ? 'alert alert-warning' : 'alert alert-info';  // Выделяем ответы от администратора
-            $title = $row['sender_id'] == 9 ? 'Ответ от администратора' : 'Ваше сообщение';
-            echo "<div class='$class'>";
-            echo "<h4>$title</h4>";
-            echo "<p> Текст: " . htmlspecialchars($row['message']) . "</p>";
-            echo "</div>";
+    <div class="message-container">
+        <?php
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $class = $row['sender_id'] == 9 ? 'alert alert-warning' : 'alert alert-info';  // Выделяем ответы от администратора
+                $title = $row['sender_id'] == 9 ? 'Ответ от администратора' : 'Ваше сообщение';
+                echo "<div class='$class'>";
+                echo "<h4>$title</h4>";
+                echo "<p> Текст: " . htmlspecialchars($row['message']) . "</p>";
+                echo "</div>";
+            }
+        } else {
+            echo "<p>Тут тихо... Даже слишком</p>";
         }
-    } else {
-        echo "<p>Тут тихо... Даже слишком</p>";
-    }
-    ?>
+        ?>
+    </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.1/emojionearea.min.js"></script>
