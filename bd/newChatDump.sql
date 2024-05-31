@@ -31,7 +31,7 @@ CREATE TABLE `announcements` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `importance` enum('low','medium','high') NOT NULL DEFAULT 'low',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,6 @@ CREATE TABLE `announcements` (
 
 LOCK TABLES `announcements` WRITE;
 /*!40000 ALTER TABLE `announcements` DISABLE KEYS */;
-INSERT INTO `announcements` VALUES (6,'Горячей воды не будет','вообще','2024-05-22','2024-05-24','2024-05-22 15:08:02','high'),(7,'Будет тепленькая','ну не совсем','2024-05-22','2024-05-26','2024-05-22 15:08:22','low'),(8,'Холодная вода будет ','стопудова','2024-05-22','2024-05-26','2024-05-22 15:27:51','medium');
 /*!40000 ALTER TABLE `announcements` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -99,33 +98,6 @@ LOCK TABLES `apartments_has_residents` WRITE;
 INSERT INTO `apartments_has_residents` VALUES (1,1),(4,1),(1,2),(2,3),(3,4),(2,5),(1,8);
 /*!40000 ALTER TABLE `apartments_has_residents` ENABLE KEYS */;
 UNLOCK TABLES;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `AfterResidentToApartmentInsert` AFTER INSERT ON `apartments_has_residents` FOR EACH ROW BEGIN
-    DECLARE vFullName VARCHAR(255);
-    
-    -- Получение полного имени жителя по его ID
-    SELECT full_name INTO vFullName FROM residents WHERE id = NEW.residents_id;
-    
-    -- Формирование описания действия с использованием полного имени вместо ID
-    SET @Description = CONCAT('Житель ', vFullName, ' добавлен в квартиру с ID ', NEW.apartments_id);
-    
-    -- Добавление записи в лог
-    INSERT INTO `logs` (`type`, `description`)
-    VALUES ('Добавление', @Description);
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `buildings`
@@ -256,7 +228,7 @@ CREATE TABLE `messages` (
   KEY `receiver_id` (`receiver_id`),
   CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `residents` (`id`),
   CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `residents` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -265,7 +237,6 @@ CREATE TABLE `messages` (
 
 LOCK TABLES `messages` WRITE;
 /*!40000 ALTER TABLE `messages` DISABLE KEYS */;
-INSERT INTO `messages` VALUES (1,4,9,'Помоги',0,'2024-05-12 14:50:59'),(2,4,9,'Помоги',0,'2024-05-12 14:51:01'),(3,4,9,'Помоги',0,'2024-05-12 14:51:03'),(4,9,4,'Помог',0,'2024-05-12 14:51:15'),(5,4,9,'Помоги',0,'2024-05-12 14:51:20'),(6,2,9,'куку',0,'2024-05-12 14:55:39'),(7,9,2,'привет',0,'2024-05-12 14:55:49'),(8,10,9,'я тут\r\n',0,'2024-05-12 15:03:28'),(9,9,10,'я тоже',0,'2024-05-12 15:03:39'),(10,2,9,'Поможешь?',0,'2024-05-12 15:07:44'),(11,9,2,'Помогу',0,'2024-05-12 15:07:53'),(12,10,9,'Мне нужна справка ',0,'2024-05-14 10:42:55'),(13,9,10,'Хорошо, сделаем ',0,'2024-05-14 10:43:04'),(14,10,9,'тест',0,'2024-05-14 10:58:08'),(15,9,10,'тест',0,'2024-05-14 10:58:18'),(16,10,9,'всем пискам пис',0,'2024-05-14 21:36:30'),(17,9,10,'И тебе того же',0,'2024-05-14 21:36:41'),(18,3,9,'Всем привет когда дадут горячую воду',0,'2024-05-15 09:25:04'),(19,9,3,'Никогда',0,'2024-05-15 09:25:15'),(20,10,9,'???',0,'2024-05-22 17:58:56');
 /*!40000 ALTER TABLE `messages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -348,7 +319,7 @@ CREATE TABLE `residents` (
 
 LOCK TABLES `residents` WRITE;
 /*!40000 ALTER TABLE `residents` DISABLE KEYS */;
-INSERT INTO `residents` VALUES (1,'Иванов Иван Иванович','1985-03-15','2020-01-10','+71234567890'),(2,'Петров Петр Петрович','1990-07-22','2020-02-20','+70987654321'),(3,'Сидорова Мария Ивановна','1995-11-30','2021-03-15','+70876543210'),(4,'Иванова Анна Петровна','1975-02-05','2020-05-05','+70765432109'),(5,'ФИО','1999-09-09','1999-09-09','+89992929'),(6,'ФИО','1999-09-09','1999-09-09','+89992929'),(7,'ФИО','2024-04-28','2024-04-28','9888'),(8,'ФИО','2024-04-28','2024-04-28','9888'),(9,'admin','2024-04-28','2024-04-28','0000000000'),(10,'Тестов Тест Тестович','2024-04-28','2024-04-28','+70765432110');
+INSERT INTO `residents` VALUES (1,'Иванов Иван Иванович','1985-03-15','2020-01-10','+71234567890'),(2,'Петров Петр Петрович','1990-07-22','2020-02-20','+70987654321'),(3,'Сидорова Мария Ивановна','1995-11-30','2021-03-15','+70876543210'),(4,'Иванова Анна Петровна','1975-02-05','2020-05-05','+70765432109'),(5,'Александров Александр Александрович','1999-09-09','1999-09-09','+89992922'),(6,'Строев Максим Александрович','1999-09-09','1999-09-09','+89992929'),(7,'Сачейкин Илья Александрович','2024-04-28','2024-04-28','+79106482323'),(8,'Соловьева Виктория Романовка','2024-04-28','2024-04-28','+79106548723'),(9,'admin','2024-04-28','2024-04-28','0000000000'),(10,'Тестов Тест Тестович','2024-04-28','2024-04-28','+70765432110');
 /*!40000 ALTER TABLE `residents` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -433,142 +404,6 @@ LOCK TABLES `storerooms` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping events for database 'housing'
---
-
---
--- Dumping routines for database 'housing'
---
-/*!50003 DROP FUNCTION IF EXISTS `GetTotalPaymentsByResident` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` FUNCTION `GetTotalPaymentsByResident`(
-    residentID INT,
-    startDate DATE,
-    endDate DATE
-) RETURNS decimal(10,2)
-    READS SQL DATA
-BEGIN
-    DECLARE total DECIMAL(10,2);
-
-    SELECT SUM(p.amount) INTO total
-    FROM payments p
-    JOIN apartments_has_residents ar ON p.apartments_id = ar.apartments_id
-    WHERE ar.residents_id = residentID
-      AND p.date >= startDate
-      AND p.date <= endDate;
-
-    RETURN IFNULL(total, 0);
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `add_resident_to_apartment` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `add_resident_to_apartment`(
-    IN p_full_name VARCHAR(255), 
-    IN p_birth_date DATE, 
-    IN p_registration_date DATE, 
-    IN p_phone_number VARCHAR(45),
-    IN p_apartment_id INT
-)
-BEGIN
-    DECLARE v_resident_id INT;
-    DECLARE v_exists INT DEFAULT 0;
-
-    -- Проверка на существование апартамента
-    SELECT COUNT(*) INTO v_exists FROM apartments WHERE id = p_apartment_id;
-    IF v_exists = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Такой квартиры не существует';
-    END IF;
-
-    -- Начало транзакции
-    START TRANSACTION;
-
-    -- Добавление жителя
-    INSERT INTO residents (full_name, birth_date, registration_date, phone_number)
-    VALUES (p_full_name, p_birth_date, p_registration_date, p_phone_number);
-
-    -- Получение ID только что добавленного жителя
-    SET v_resident_id = LAST_INSERT_ID();
-    
-    -- Связывание жителя с уже существующей квартирой
-    INSERT INTO apartments_has_residents (apartments_id, residents_id)
-    VALUES (p_apartment_id, v_resident_id);
-
-    -- Проверка успешности операций и завершение транзакции
-    IF ROW_COUNT() > 0 THEN
-        COMMIT;
-    ELSE
-        ROLLBACK;
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Ошибка при добавлении жителя';
-    END IF;
-    
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `get_resident_details` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_resident_details`(IN residentID INT)
-BEGIN
-    DECLARE vFullName VARCHAR(255);
-    DECLARE vTotalApartments INT;
-    DECLARE vTotalArea FLOAT;
-    
-    -- Получаем полное имя жителя
-    SELECT full_name INTO vFullName
-    FROM residents
-    WHERE id = residentID;
-    
-    -- Получаем количество квартир, связанных с жителем
-    SELECT COUNT(*) INTO vTotalApartments
-    FROM apartments_has_residents
-    WHERE residents_id = residentID;
-    
-    -- Получаем общую площадь всех квартир жителя
-    SELECT SUM(a.area) INTO vTotalArea
-    FROM apartments a
-    JOIN apartments_has_residents ahr ON a.id = ahr.apartments_id
-    WHERE ahr.residents_id = residentID;
-    
-    -- Возвращаем результаты
-    SELECT vFullName AS 'Full Name', vTotalApartments AS 'Total Apartments', vTotalArea AS 'Total Area';
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-
---
 -- Final view structure for view `residents_apartments_view`
 --
 
@@ -595,4 +430,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-23  9:27:19
+-- Dump completed on 2024-05-31 12:02:17
