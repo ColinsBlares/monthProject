@@ -1,10 +1,7 @@
 <?php
 session_start();
 // Подключение к базе данных
-$conn = new mysqli("localhost", "root", "12345678", "housing");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include 'config.php';
 
 // Проверка аутентификации админа
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
@@ -182,7 +179,7 @@ $users_result = $conn->query($users_sql);
                     echo "</div>";
                 }
             } else {
-                echo "<p>No announcements yet.</p>";
+                echo "<p>Объявлений нет.</p>";
             }
             ?>
         </div>

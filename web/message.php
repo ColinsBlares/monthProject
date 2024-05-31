@@ -12,26 +12,40 @@ if (isset($_GET['logout'])) {
     exit();
 }
 
-$conn = new mysqli("localhost", "root", "12345678", "housing");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+include 'config.php'; // Подключаем файл с подключением к базе данных
+$user_id = $_SESSION['user_id'];
+
+// Получение имени пользователя
+$sql_user = "SELECT full_name FROM residents WHERE id = '$user_id'";
+$result_user = $conn->query($sql_user);
+
+if ($result_user->num_rows == 1) {
+    $user = $result_user->fetch_assoc();
+    $username = $user['full_name'];
+} else {
+    $username = "Гость"; // На случай если что-то пойдет не так
 }
 
-$user_id = $_SESSION['user_id'];
+$error = ''; // Переменная для хранения сообщений об ошибках
 
 // Обработка отправки сообщения
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['message'])) {
     $message = $conn->real_escape_string($_POST['message']);
-    $sql = "INSERT INTO messages (sender_id, receiver_id, message) VALUES ('$user_id', '9', '$message')";  // 9 - ID администратора
-    if ($conn->query($sql)) {
-        header("Location: message.php"); // PRG чтобы избежать дублирования
-        exit();
+    if (strlen($message) > 255) {
+        $error = "Сообщение не должно превышать 255 символов.";
+    } else {
+        $sql = "INSERT INTO messages (sender_id, receiver_id, message) VALUES ('$user_id', '9', '$message')";  // 9 - ID администратора
+        if ($conn->query($sql)) {
+            header("Location: message.php"); // PRG чтобы избежать дублирования
+            exit();
+        }
     }
 }
 
 $sql = "SELECT message, sender_id FROM messages WHERE sender_id = '$user_id' OR receiver_id = '$user_id' ORDER BY created_at DESC";
 $result = $conn->query($sql);
 ?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -53,12 +67,17 @@ $result = $conn->query($sql);
 </head>
 <body>
 <div class="container mt-5">
-    <h1>Ваши сообщения</h1>
+    <h1>Здравствуйте, <?= htmlspecialchars($username) ?></h1>
+    <h2>Ваши сообщения</h2>
     <a href="?logout" class="btn btn-danger mb-3">Выйти</a>
+    <?php if ($error): ?>
+        <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
     <form method="post" class="mb-4">
         <div class="mb-3">
             <label for="message" class="form-label">Ваше сообщение</label>
-            <textarea class="form-control emoji-picker" id="message" name="message" required></textarea>
+            <textarea class="form-control emoji-picker" id="message" name="message" maxlength="255" required></textarea>
+            <div class="form-text">Максимальная длина сообщения 255 символов.</div>
         </div>
         <button type="submit" class="btn btn-primary">Отправить сообщение</button>
     </form>
@@ -84,7 +103,18 @@ $result = $conn->query($sql);
 <script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.1/emojionearea.min.js"></script>
 <script>
     $(document).ready(function(){
-        $(".emoji-picker").emojioneArea();
+        $(".emoji-picker").emojioneArea({
+            events: {
+                keyup: function (editor, event) {
+                    var textLength = this.getText().length;
+                    if (textLength > 255) {
+                        alert('Сообщение не должно превышать 255 символов.');
+                        var truncatedText = this.getText().substring(0, 255);
+                        this.setText(truncatedText);
+                    }
+                }
+            }
+        });
     });
 </script>
 </body>

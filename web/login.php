@@ -1,9 +1,6 @@
 <?php
 session_start();
-$conn = new mysqli("localhost", "root", "12345678", "housing");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include 'config.php';
 
 $error = '';
 
@@ -33,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'], $_POST['pa
     <title>Авторизация</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <?php
-        if(isset($_COOKIE["theme"]) && $_COOKIE["theme"] === "dark") {
+        if (isset($_COOKIE["theme"]) && $_COOKIE["theme"] === "dark") {
             echo '<link href="/styles/dark-theme.css" rel="stylesheet">';
         } else {
             echo '<link href="/styles/light-theme.css" rel="stylesheet">';
@@ -61,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'], $_POST['pa
 
     <div class="theme-toggle">
         <label for="theme-toggle-checkbox">Тема:</label>
-        <input type="checkbox" id="theme-toggle-checkbox" <?php if(isset($_COOKIE["theme"]) && $_COOKIE["theme"] === "dark") echo "checked"; ?>>
+        <input type="checkbox" id="theme-toggle-checkbox" <?php if (isset($_COOKIE["theme"]) && $_COOKIE["theme"] === "dark") echo "checked"; ?>>
     </div>
 </div>
 <script src="scripts/script.js" defer></script> <!-- Подключение внешнего файла JavaScript -->
