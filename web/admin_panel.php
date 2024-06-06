@@ -171,7 +171,7 @@ $users_result = $conn->query($users_sql);
                     echo "<div class='alert alert-info'>";
                     echo "<h4>" . htmlspecialchars($row['title']) . "</h4>";
                     echo "<p>" . htmlspecialchars($row['content']) . "</p>";
-                    echo "<small>Valid from " . htmlspecialchars($row['start_date']) . " to " . htmlspecialchars($row['end_date']) . "</small>";
+                    echo "<small>Действителено с " . htmlspecialchars($row['start_date']) . " to " . htmlspecialchars($row['end_date']) . "</small>";
                     echo "<form method='get' class='mt-2'>";
                     echo "<input type='hidden' name='delete_announcement' value='{$row['id']}'>";
                     echo "<button type='submit' class='btn btn-danger btn-sm'>Удалить</button>";

@@ -2,6 +2,14 @@
 session_start();
 include 'config.php';
 
+// Проверка наличия куки и автоматический вход
+if (isset($_COOKIE['username']) && isset($_COOKIE['user_id'])) {
+    $_SESSION['user_logged_in'] = true;
+    $_SESSION['user_id'] = $_COOKIE['user_id'];
+    header("Location: message.php");
+    exit();
+}
+
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'], $_POST['password'])) {
@@ -15,6 +23,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'], $_POST['pa
         $user = $result->fetch_assoc();
         $_SESSION['user_logged_in'] = true;
         $_SESSION['user_id'] = $user['id'];
+
+        // Если пользователь выбрал опцию "Запомнить меня"
+        if (!empty($_POST['remember'])) {
+            setcookie('username', $username, time() + (86400 * 30), "/"); // Куки на 30 дней
+            setcookie('user_id', $user['id'], time() + (86400 * 30), "/"); // Куки на 30 дней
+        } else {
+            // Если опция не выбрана, удаляем куки, если они были
+            if (isset($_COOKIE['username'])) {
+                setcookie('username', '', time() - 3600, "/");
+                setcookie('user_id', '', time() - 3600, "/");
+            }
+        }
+
         header("Location: message.php");
         exit();
     } else {
@@ -51,6 +72,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username'], $_POST['pa
         <div class="mb-3">
             <label for="password" class="form-label">Телефонный номер</label>
             <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+            <label class="form-check-label" for="remember">Запомнить меня</label>
         </div>
         <button type="submit" class="btn btn-primary">Войти</button>
         <a href="index.php" class="btn btn-secondary">Назад</a>
